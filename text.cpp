@@ -3,36 +3,25 @@
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
 #include "lib/stb_truetype.h"
 
-const int TTW = 1024;
-const int TTH = 1024;
-const float TTSIZE = 128.0;
-unsigned char gray_temp_bitmap[TTW*TTH];
-u8 *color_temp_bitmap;
-
-stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
-
-// d3d_textured_quad fontquad;
-
-
 
 stbtt_fontinfo ttfont;
 
-void tt_init_nobake()
+void ttf_init()
 {
-    u8 *ttfile_buffer = (u8*)malloc(1<<20);
-    fread(ttfile_buffer, 1, 1<<20, fopen("c:/windows/fonts/segoeui.ttf", "rb"));
+    u8 *file_buffer = (u8*)malloc(1<<20);
+    fread(file_buffer, 1, 1<<20, fopen("c:/windows/fonts/segoeui.ttf", "rb"));
 
-    if (!stbtt_InitFont(&ttfont, ttfile_buffer, 0))
+    if (!stbtt_InitFont(&ttfont, file_buffer, 0))
     {
         MessageBox(0, "stbtt init font failed", 0,0);
     }
-    // free(ttfile_buffer);  // looks like we need to keep this around?
+    // free(file_buffer);  // looks like we need to keep this around?
 }
 
-d3d_textured_quad tt_create(char *text, int fsize, float alpha, bool centerH, bool centerV, int bgA = 0)
+d3d_textured_quad ttf_create(char *text, int fsize, float alpha, bool centerH, bool centerV, int bgA = 0)
 {
-	d3d_textured_quad fontquad;
-	
+    d3d_textured_quad fontquad = {0};
+
     int bitmapW = 0;
     int bitmapH = 0;
     int fontH = fsize;
@@ -97,7 +86,7 @@ d3d_textured_quad tt_create(char *text, int fsize, float alpha, bool centerH, bo
     }
 
 
-    color_temp_bitmap = (u8*)malloc(bitmapW * bitmapH * 4);
+    u8 *color_temp_bitmap = (u8*)malloc(bitmapW * bitmapH * 4);
     for (int px = 0; px < bitmapW; px++)
     {
         for (int py = 0; py < bitmapH; py++)
@@ -111,34 +100,17 @@ d3d_textured_quad tt_create(char *text, int fsize, float alpha, bool centerH, bo
             *b = *(gray_bitmap + ((py*bitmapW)+px));
             *a = *(gray_bitmap + ((py*bitmapW)+px));
             if (bgA != 0) *a = bgA;
-			// *a = 255;
+            // *a = 255;
         }
     }
 
     fontquad.update(color_temp_bitmap, bitmapW,bitmapH);
 
-    // center text on input
-    // if (centerH) tx -= bitmapW/2.0; // since we calc these they should be decent way to center the text
-    // if (centerV) ty -= bitmapH/2.0;
-
-    // float verts[] = {
-     // x                      y                      z   u   v
-        // px2ndc(tx        ,sw), px2ndc(ty        ,sh), 0,  0,  1,
-        // px2ndc(tx        ,sw), px2ndc(bitmapH+ty,sh), 0,  0,  0,
-        // px2ndc(bitmapW+tx,sw), px2ndc(ty        ,sh), 0,  1,  1,
-        // px2ndc(bitmapW+tx,sw), px2ndc(bitmapH+ty,sh), 0,  1,  0,
-    // };
-    // fontquad.update_custom_verts(verts);
-	
-    // fontquad.update_with_pixel_coords(tx, sh-ty-bitmapH, bitmapW, bitmapH, sw, sh);
-    // fontquad.render();
-	
-
 
     free(color_temp_bitmap);
     free(gray_bitmap);
-	
-	return fontquad;
+
+    return fontquad;
 }
 
 

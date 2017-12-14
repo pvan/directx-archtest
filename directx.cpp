@@ -300,7 +300,7 @@ void d3d_clear(int r = 0, int g = 0, int b = 0, int a = 255)
 
 float px2ndc(int pixel, int size)
 {
-	return ((float)pixel / (float)size)*2.0f - 1.0f;
+    return ((float)pixel / (float)size)*2.0f - 1.0f;
 }
 
 struct d3d_textured_quad
@@ -309,19 +309,20 @@ struct d3d_textured_quad
     IDirect3DTexture9 *tex;
     IDirect3DVertexDeclaration9 *vertexDecl;
     bool created;
-
     int texW;
     int texH;
 
     void destroy()
     {
-        vb->Release();
-        tex->Release();
-        vertexDecl->Release();
+        if (vb) vb->Release();
+        if (tex) tex->Release();
+        if (vertexDecl) vertexDecl->Release();
         vb = 0;
         tex = 0;
         vertexDecl = 0;
         created = false;
+        texW = 0;
+        texH = 0;
     }
 
     void create_tex(int w, int h)

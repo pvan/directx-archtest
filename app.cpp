@@ -49,6 +49,8 @@ void fill_tex_with_pattern(IDirect3DTexture9 *t, float dt)
 }
 
 
+char msg[1024];
+
 d3d_textured_quad screen;
 d3d_textured_quad hud;
 d3d_textured_quad text;
@@ -59,6 +61,10 @@ bool running = true;
 
 DWORD WINAPI RunMainLoop( LPVOID lpParam )
 {
+    // screen.destroy();
+    // hud.destroy();
+    // text.destroy();
+
     // {
         // unsigned char *mem = (unsigned char *)malloc(400*400*4);
         // ZeroMemory(mem, 400*400*4);
@@ -68,10 +74,10 @@ DWORD WINAPI RunMainLoop( LPVOID lpParam )
         // if (!mem) MessageBox(0, "failed to load file", 0, 0);
         // hud.update(mem, w, h);
     // }
-	
-	{
-		text = tt_create("hello world", 32, 255, true, true);
-	}
+
+    {
+        // text = ttf_create("hello world", 64, 255, true, true);
+    }
 
     {
         u8 *mem = (u8*)malloc(400*400*4);
@@ -79,8 +85,11 @@ DWORD WINAPI RunMainLoop( LPVOID lpParam )
         screen.update(mem, 400, 400);
     }
 
+    int count = 0;
     while (running)
     {
+        sprintf(msg, "%i", count++);
+
         fill_tex_with_pattern(screen.tex, 16);
         Sleep(16);
     }
@@ -109,15 +118,20 @@ void render()
         d3d_resize(sw, sh);
     }
 
-	// tt_print_nobake(sw/2, sh/2, "hello world", 32, sw, sh, 1, true, true, 1);
-    // text.move_to_pixel_coords_TL(10, 10, sw, sh);
+
+    if (msg && *msg)
+    {
+        text.destroy();
+        text = ttf_create(msg, 64, 255, true, true);
+    }
+
     text.move_to_pixel_coords_center(sw/2, sh/2, sw, sh);
-					 
+
     // hud.update_with_pixel_coords(10, sh-10-200, 200, 200, sw, sh);
 
     screen.render();
-    text.render();
     // hud.render();
+    text.render();
     d3d_swap();
 }
 
@@ -174,8 +188,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     d3d_load();
     d3d_init(hwnd, 400, 400);
-	
-	tt_init_nobake();
+
+    ttf_init();
 
 
 
