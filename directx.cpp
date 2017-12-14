@@ -298,6 +298,10 @@ void d3d_clear(int r = 0, int g = 0, int b = 0, int a = 255)
     if (device) device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(r,g,b,a), 1.0f, 0);
 }
 
+float px2ndc(int pixel, int size)
+{
+	return ((float)pixel / (float)size)*2.0f - 1.0f;
+}
 
 struct d3d_textured_quad
 {
@@ -364,11 +368,7 @@ struct d3d_textured_quad
         memcpy(where_to_copy_to, verts, 5*4*sizeof(float));
         vb->Unlock();
     }
-    float px2ndc(int pixel, int size)
-    {
-        return ((float)pixel / (float)size)*2.0f - 1.0f;
-    }
-    void update_with_pixel_coords(int qx, int qy, int qw, int qh, int sw, int sh)
+    void move_to_pixel_coords(int qx, int qy, int qw, int qh, int sw, int sh)
     {
         if (!created) return;
 
@@ -381,6 +381,9 @@ struct d3d_textured_quad
         };
         update_custom_verts(verts);
     }
+    void move_to_pixel_coords(int qx, int qy, int sw, int sh) { move_to_pixel_coords(qx, qy, texW, texH, sw, sh); }
+    void move_to_pixel_coords_TL(int qx, int qy, int sw, int sh) { move_to_pixel_coords(qx, sh-texH-qy, texW, texH, sw, sh); }
+    void move_to_pixel_coords_center(int qx, int qy, int sw, int sh) { move_to_pixel_coords(qx-texW/2, qy-texH/2, texW, texH, sw, sh); }
 
     void create(u8 *qmem, int qw, int qh, float dl, float dt, float dr, float db, float z)
     {

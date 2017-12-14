@@ -21,7 +21,7 @@
 #define int64 int64_t
 
 
-
+#define NBSP '\u00A0'
 
 
 
